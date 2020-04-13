@@ -3,9 +3,10 @@
 `IsApprox` implements an interface for specifying different tests for approximate equality.
 Examples are exact equality, elementwise approximate equality, and approximate equality in norm.
 Currently, packages often implement their own version of functions such as `ishermitan` because
-the required notion of close depends on the use case. `IsApprox` is an attempt to allow
-users to instead specify different notions of closeness. The code that implements
-tests for properties such as symmetry or positivity, may then be somewhat decoupled from the
+the required notion of close depends on the use case. `IsApprox` allows
+users to instead specify different definitions of closeness, via a zero-cost abstraction.
+That is, specifying the definition of closeness need not incur a run-time cost.
+The code that implements tests for properties such as symmetry or positivity, may then be somewhat decoupled from the
 specification of closeness. Futhermore, a simple, small, collection of closeness measures
 should be adequate for the vast majority of use cases.
 
