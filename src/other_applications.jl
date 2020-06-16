@@ -62,14 +62,6 @@ function isposdef(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
     return _isposdef(m, approx_test, isposdef)
 end
 
-"""
-    dotu(x::AbstractVector, y::AbstractVector)
-
-Dot product with no complex conjugation of `x`. This dispatches to `LinearAlgebra.dot`
-if `x` and `y` are `Real`.
-"""
-dotu(x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) = LinearAlgebra.dot(x, y)
-dotu(x::AbstractVector{<:Complex}, y::AbstractVector{<:Complex}) = LinearAlgebra.BLAS.dotu(x, y)
 
 # Compared two methods:
 # a) Allocate, ie m' * m. b) iterate over columns
@@ -79,7 +71,7 @@ dotu(x::AbstractVector{<:Complex}, y::AbstractVector{<:Complex}) = LinearAlgebra
 # 3. Doing the allocation, eg m' * m can be slightly faster. Eg for 100x100 dense identity matrix.
 # 4. For rand(100, 100), iterating over columns is 1000 times faster. Fails on first column.
 # `approx_test` is `Equal` or `EachApprox`.
-function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf=LinearAlgebra.dot, transposef=identity)
+function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transposef)
     rowinds = axes(m)[2]
     for i in rowinds
         isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, i)), 1) || return false
@@ -91,23 +83,49 @@ function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf=LinearA
 end
 
 # This is slower even for small matrices
-function _isunitary(m::AbstractMatrix, approx_test::Approx, dotf=LinearAlgebra.dot, transposef=identity)
-    return  isapprox(approx_test, transposef(m) * m, LinearAlgebra.I)
+function isunitary(m::AbstractMatrix, approx_test::Approx)
+    return  isapprox(approx_test, m' * m, LinearAlgebra.I)
 end
 
+_identity(x) = x
 """
     isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
 
 Return `true` if `m` is unitary. If `m` is real, this tests orthogonality.
 """
-isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) = _isunitary(m, approx_test)
+isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) =
+    _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
+
+"""
+    _dotu(x::AbstractVector, y::AbstractVector)
+
+Dot product with no complex conjugation of `x`. This dispatches to `LinearAlgebra.dot`
+if `x` and `y` are `Real`.
+"""
+_dot(x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) = LinearAlgebra.dot(x, y)
+
+_dot(x::AbstractVector{Complex{T}}, y::AbstractVector{Complex{T}}) where {T <: Union{Float64, Float32}} =
+    LinearAlgebra.BLAS.dotu(x, y)
+
+# There has got to be a better way than all of these _dot methods
+function _dot(x::AbstractVector{<:Complex}, y::AbstractVector{<:Complex})
+    s = zero(eltype(x))
+    for (a, b) in zip(x, y)
+        s += a * b
+    end
+    return s
+end
 
 """
     isinvolution(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
 
 Return `true` if `m * m == I`
 """
-isinvolution(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) = _isunitary(m, approx_test, dotu, transpose)
+isinvolution(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) = _isunitary(m, approx_test, _dot, transpose)
+
+function isinvolution(m::AbstractMatrix, approx_test::Approx)
+    return  isapprox(approx_test, m * m, LinearAlgebra.I)
+end
 
 # Some of the following from QuantumInfo.jl
 # might be implemented here:

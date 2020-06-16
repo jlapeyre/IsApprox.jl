@@ -57,6 +57,7 @@ end
     @test ispossemidef(0)
     @test ispossemidef(1)
     @test ! ispossemidef(-1)
+    @test isposdef(1 + 0im)
     @test ispossemidef(-1e-5, Approx(atol=1e-3))
 
     @test isposdef(1)
@@ -72,11 +73,16 @@ end
     @test isposdef(m3, Approx())
 end
 
-@testset "isunitary" begin
+@testset "isunitary isinvolution" begin
     s0 = [1 0; 0 1]
     s1 = [0 1; 1 0]
     s2 = [0 -im; im 0]
     s3 = [1 0; 0 -1]
+
+    @test isunitary(s3)
+    @test isunitary(s2)
+    @test isinvolution(s3)
+    @test isinvolution(s2)
 
     # merr = rand(0:100, 8,8) * 1e-12
     errmat = [5.3e-11 9.4e-11 3.5e-11 6.6e-11 8.6e-11 4.9e-11 5.2e-11 1.6e-11;
@@ -100,4 +106,18 @@ end
     @test ! isunitary(merr, EachApprox(atol=1e-10))
     @test isunitary(merr, EachApprox(atol=5e-10))
     @test ! isunitary(merr, Approx(atol=1e-10))
+
+    m1 = [1 0; 1 -1]
+    _m1err = (rand(2, 2) .- 0.5) * 1e-10
+    m1err = m1 + _m1err
+
+    @test isinvolution(m1)
+    @test ! isunitary(m1)
+    @test isinvolution(m1, Equal())
+    @test ! isinvolution(m1err)
+    @test isinvolution(m1err, EachApprox(atol=1e-9))
+    @test isinvolution(m1err, Approx(atol=1e-9))
+    @test ! isunitary(m1err, Approx(atol=1e-9))
+    @test ! isinvolution(m1err, Approx(atol=1e-12))
+
 end
