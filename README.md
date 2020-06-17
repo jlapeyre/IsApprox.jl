@@ -104,6 +104,13 @@ as `IsApprox.isunitary`. These follow the parameter ordering and calling convent
 as `IsApprox.isone`, etc.
 
 
+## Style
+
+This package will probably try to follow the [Blue Style Guide](https://github.com/invenia/BlueStyle).
+An important rule is broken immediately: predicates are written `isprop` rather than `is_prop`.
+And `ispropmod1mod2` rather than `is_prop_mod1_mod2`. The main reason is that some of these
+functions exist by the same name in `Base`. And some are very closely related.
+
 <!--  LocalWords:  IsApprox isapprox isone issymmetric LinearAlgebra isdiag iszero hoc
  -->
 <!--  LocalWords:  isposdef ishermitian elementwise reimplement ishermitan QuantumInfo
