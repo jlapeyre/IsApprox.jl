@@ -1,7 +1,8 @@
 module IsApprox
 
 export AbstractApprox, Equal, EachApprox, Approx
-export ispossemidef, isunitary, isinvolution
+export ispossemidef, isunitary, isinvolution,
+    isidempotent, isnormal
 
 include("core.jl")
 include("base_applications.jl")

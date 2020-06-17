@@ -131,6 +131,14 @@ function isinvolution(m::AbstractMatrix, approx_test::Approx)
     return  isapprox(approx_test, m * m, LinearAlgebra.I)
 end
 
+function isidempotent(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+    return isapprox(approx_test, m * m, m)
+end
+
+function isnormal(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+    return isapprox(approx_test, m * m', m' * m)
+end
+
 # Some of the following from QuantumInfo.jl
 # might be implemented here:
 # ischannel
@@ -144,3 +152,7 @@ end
 # iscommute
 # isnormalized
 # isreflexive  <-- isinvolution is a better name, See above
+
+# From other libraries
+# isidempotent
+# isnormal
