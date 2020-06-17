@@ -58,10 +58,14 @@ end
 
 Return `true` if `m` is positive definite.
 """
-function isposdef(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+function isposdef(m::AbstractMatrix, approx_test::AbstractApprox)
     return _isposdef(m, approx_test, isposdef)
 end
 
+isposdef(A::AbstractMatrix) = isposdef(A, Equal())
+# copied from dense.jl
+isposdef(A::AbstractMatrix, ::Equal) =
+    ishermitian(A, Equal()) && LinearAlgebra.isposdef(LinearAlgebra.cholesky(LinearAlgebra.Hermitian(A); check = false))
 
 # Compared two methods:
 # a) Allocate, ie m' * m. b) iterate over columns
