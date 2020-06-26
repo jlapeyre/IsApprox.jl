@@ -14,7 +14,7 @@ function ispossemidef(x::Real, approx_test::AbstractApprox=Equal())
     return x > zero(x) || iszero(x, approx_test)
 end
 
-# For both pos def and pos semidef
+# Used for both pos def and pos semidef
 function _isposdef(z::Complex, approx_test::AbstractApprox, posdeffunc)
     return posdeffunc(real(z), approx_test) && iszero(imag(z), approx_test)
 end
@@ -138,6 +138,20 @@ end
 function isnormal(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
     return isapprox(approx_test, m * m', m' * m)
 end
+
+"""
+    commutes(X, Y, approx_test::AbstractApprox=Equal())
+
+Return `true` if `X` and `Y` commute.
+"""
+commutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, X * Y, Y * X)
+
+"""
+    anticommutes(X, Y, approx_test::AbstractApprox=Equal())
+
+Return `true` if `X` and `Y` anticommute.
+"""
+anticommutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, X * Y, -(Y * X))
 
 # Some of the following from QuantumInfo.jl
 # might be implemented here:
