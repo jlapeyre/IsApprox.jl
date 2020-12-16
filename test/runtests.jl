@@ -1,6 +1,8 @@
 using IsApprox
 using IsApprox: isone, iszero, isreal, isinteger, ispossemidef, isposdef, isdiag
 using Test
+import LinearAlgebra
+
 
 @testset "isone, iszero" begin
     @test isone(1.0)
@@ -119,5 +121,9 @@ end
     @test isinvolution(m1err, Approx(atol=1e-9))
     @test ! isunitary(m1err, Approx(atol=1e-9))
     @test ! isinvolution(m1err, Approx(atol=1e-12))
+
+    @test isunitary(1)
+    @test ! isunitary(2)
+    @test isunitary((1e-10 + exp(im * 2.5)) * LinearAlgebra.I, Approx())
 
 end
