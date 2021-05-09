@@ -2,7 +2,7 @@
 ### It may be necessary to instead replace the `Base` and `LinearAlgebra` functions
 ### if `IsApprox` is widely adopted.
 
-#### isone, iszero
+### isone, iszero
 
 isone(x, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, one(x))
 iszero(x, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, zero(x))
@@ -50,7 +50,7 @@ end
     return true
 end
 
-#### ishermitian, issymmetric
+### ishermitian, issymmetric
 
 # The call `ishermitian(A::AbstractMatrix, B::AbstractMatrix) lowers
 # to exactly the same code as that in LinearAlgebra
@@ -91,13 +91,13 @@ end
 
 issymmetric(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, x)
 
-#### isreal
+### isreal
 
 # complex.jl
 isreal(x::Real, approx_test::AbstractApprox=Equal()) = true
 isreal(z::Complex, approx_test::AbstractApprox=Equal()) = iszero(imag(z), approx_test)
 
-#### isinteger
+### isinteger
 
 # This must be changed if this is integrated into Base
 isinteger(x) = isinteger(x, Equal())
@@ -109,11 +109,11 @@ isinteger(x::Rational, ::Equal) = Base.isinteger(x)
 isinteger(x::Integer, ::AbstractApprox=Equal()) = true
 
 # floatfuncs.jl
-# The original is x - trunc(x) == 0. So this implementation might differ
-# from the stock version of isinteger for some user's subtype of AbstractFloat.
-# We choose to this implementation because the default relative tolerance is
-# reasonable. That is, `isapprox(approx_test, x - trunc(x), 0)` requires
-# specifying `atol`.
+## The original is x - trunc(x) == 0. So this implementation might differ
+## from the stock version of isinteger for some user's subtype of AbstractFloat.
+## We choose to this implementation because the default relative tolerance is
+## reasonable. That is, `isapprox(approx_test, x - trunc(x), 0)` requires
+## specifying `atol`.
 isinteger(x::AbstractFloat, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, trunc(x))
 
 # complex.jl

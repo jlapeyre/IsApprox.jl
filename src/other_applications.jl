@@ -32,10 +32,10 @@ Return `true` if `x` is approximately greater than zero.
 """
 isposdef(x::Number) = isposdef(x, Equal())
 isposdef(x::Real, ::Equal) = x > zero(x)
-# For methods other than `Equal`, x can be zero or negative
+## For methods other than `Equal`, x can be zero or negative
 isposdef(x::Number, approx_test::AbstractApprox) = ispossemidef(x, approx_test)
 
-# For both positive definite and positive semidefinite
+## For both positive definite and positive semidefinite
 function _isposdef(m::AbstractMatrix, approx_test::AbstractApprox, posdeffunc)
     ! ishermitian(m, approx_test) && return false
     evs = LinearAlgebra.eigvals(LinearAlgebra.Hermitian(m))
