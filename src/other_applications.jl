@@ -1,9 +1,7 @@
-###
-
 import LinearAlgebra
 
-# We use ispossemidef for numbers as well as matrices.
-# This follows `ishermitian`, etc.
+## We use ispossemidef for numbers as well as matrices.
+## This follows `ishermitian`, etc.
 
 """
     ispossemidef(x::Number, approx_test::AbstractApprox=Equal())
@@ -14,7 +12,7 @@ function ispossemidef(x::Real, approx_test::AbstractApprox=Equal())
     return x > zero(x) || iszero(x, approx_test)
 end
 
-# Used for both pos def and pos semidef
+## Used for both pos def and pos semidef
 function _isposdef(z::Complex, approx_test::AbstractApprox, posdeffunc)
     return posdeffunc(real(z), approx_test) && iszero(imag(z), approx_test)
 end
@@ -67,14 +65,14 @@ isposdef(A::AbstractMatrix) = isposdef(A, Equal())
 isposdef(A::AbstractMatrix, ::Equal) =
     ishermitian(A, Equal()) && LinearAlgebra.isposdef(LinearAlgebra.cholesky(LinearAlgebra.Hermitian(A); check = false))
 
-# Compared two methods:
-# a) Allocate, ie m' * m. b) iterate over columns
-# Found:
-# 1. iterating order, ie rows vs cols is correct
-# 2. Avoiding allocation improves efficiency even for 2x2 matrices, but...
-# 3. Doing the allocation, eg m' * m can be slightly faster. Eg for 100x100 dense identity matrix.
-# 4. For rand(100, 100), iterating over columns is 1000 times faster. Fails on first column.
-# `approx_test` is `Equal` or `EachApprox`.
+## Compared two methods:
+## a) Allocate, ie m' * m. b) iterate over columns
+## Found:
+## 1. iterating order, ie rows vs cols is correct
+## 2. Avoiding allocation improves efficiency even for 2x2 matrices, but...
+## 3. Doing the allocation, eg m' * m can be slightly faster. Eg for 100x100 dense identity matrix.
+## 4. For rand(100, 100), iterating over columns is 1000 times faster. Fails on first column.
+## `approx_test` is `Equal` or `EachApprox`.
 function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transposef)
     rowinds = axes(m)[2]
     for i in rowinds
@@ -86,7 +84,8 @@ function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transp
     return true
 end
 
-# This is slower even for small matrices
+## This is slower even for small matrices.
+## Then why am I using it ? (May 2021)
 function isunitary(m::AbstractMatrix, approx_test::Approx)
     return  isapprox(approx_test, m' * m, LinearAlgebra.I)
 end
@@ -99,7 +98,6 @@ Return `true` if `m` is unitary. If `m` is real, this tests orthogonality.
 """
 isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) =
     _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
-
 
 isunitary(x::Number, approx_test::AbstractApprox=Equal()) = isone(abs(x), approx_test)
 isunitary(J::LinearAlgebra.UniformScaling, approx_test::AbstractApprox=Equal()) = isunitary(J.λ, approx_test)
@@ -115,13 +113,9 @@ _dot(x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) = LinearAlgebra.dot(x
 _dot(x::AbstractVector{Complex{T}}, y::AbstractVector{Complex{T}}) where {T <: Union{Float64, Float32}} =
     LinearAlgebra.BLAS.dotu(x, y)
 
-# There has got to be a better way than all of these _dot methods
+## There has got to be a better way than all of these _dot methods
 function _dot(x::AbstractVector{<:Complex}, y::AbstractVector{<:Complex})
-    s = zero(eltype(x))
-    for (a, b) in zip(x, y)
-        s += a * b
-    end
-    return s
+    return sum(*(z...) for z in zip(x, y))
 end
 
 """
