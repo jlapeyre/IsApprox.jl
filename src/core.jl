@@ -71,3 +71,52 @@ function Base.isapprox(a::EachApprox, A::AbstractArray, B::AbstractArray)
     end
     return true
 end
+
+"""
+    UpToPhase <: AbstractApprox
+
+Demands that each pair of elements are approximately equal up to a phase,
+that is a number whose absolute value is one.
+`kw` are keyword pairs that are forwarded to `isapprox`.
+"""
+struct UpToPhase{T} <: AbstractApprox
+    kw::T
+end
+UpToPhase(; kws...) = UpToPhase(kws)
+
+function Base.isapprox(a::UpToPhase, x::Number, y::Number)
+    aa = Approx(;a.kw...)
+    if isapprox(aa, x, zero(x))
+        return isapprox(aa, y, zero(y))
+    elseif isapprox(aa, y, zero(y))
+        return isapprox(aa, x, zero(x))
+    end
+    return isunitary(x / y, aa)
+end
+
+function Base.isapprox(_app::UpToPhase,  A::AbstractArray, B::AbstractArray)
+    n1 = length(A)
+    n2 = length(B)
+    if n1 != n2
+        return false
+    end
+    app = Approx(;_app.kw...)
+    seen_non_zero_flag = false
+    z = zero(eltype(A)) # TODO use promotion
+    for (a, b) in zip(A, B)
+        if iszero(a, app)
+            !iszero(b, app) && return false
+        elseif iszero(b, app)
+            !iszero(a, app) && return false
+        else
+            if ! seen_non_zero_flag
+                z = a/b
+                isunitary(z, app) || return false
+                seen_non_zero_flag = true
+            else
+                isapprox(app, a/b, z) || return false
+            end
+        end
+    end
+    return true
+end

@@ -99,7 +99,9 @@ Return `true` if `m` is unitary. If `m` is real, this tests orthogonality.
 isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) =
     _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
 
-isunitary(x::Number, approx_test::AbstractApprox=Equal()) = isone(abs(x), approx_test)
+# Careful, because we use abs2, the requested precision will probably be wrong. But, abs2 is much faster.
+# Maybe there is way to pass this information.
+isunitary(x::Number, approx_test::AbstractApprox=Equal()) = isone(abs2(x), approx_test)
 isunitary(J::LinearAlgebra.UniformScaling, approx_test::AbstractApprox=Equal()) = isunitary(J.λ, approx_test)
 
 """
