@@ -84,7 +84,7 @@ with that for `Equal`.
 
 ### AbstractApprox
 
-`AbstractApprox`, `Equal`, `Approx`, and `EachApprox` are exported.
+`AbstractApprox`, `Equal`, `Approx`, `UpToPhase`, and `EachApprox` are exported.
 
 ### `isapprox`
 
