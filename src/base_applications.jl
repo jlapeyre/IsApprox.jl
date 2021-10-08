@@ -11,11 +11,11 @@ iszero(x::AbstractArray, approx_test::AbstractApprox=Equal()) =
 isone(x::BigInt, ::Equal) = Base.isone(x)
 iszero(x::BigInt, ::Equal) = Base.iszero(x)
 
-# dense.jl
-const ISONE_CUTOFF = 2^21 # 2M
-
 isone(A::StridedMatrix, approx_test::Approx) = isapprox(approx_test, A, one(A))
 iszero(A::StridedMatrix, approx_test::Approx) = isapprox(approx_test, A, zero(A))
+
+# dense.jl
+const ISONE_CUTOFF = 2^21 # 2M
 
 function isone(A::StridedMatrix, approx_test::AbstractApprox=Equal())
     m, n = size(A)
