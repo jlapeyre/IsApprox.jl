@@ -54,7 +54,7 @@ symmetry or positivity may then be somewhat decoupled from the specification of
 closeness. Furthermore, a simple, small, collection of closeness measures should be
 adequate for the vast majority of use cases.
 
-Three subtypes of `AbstractApprox` are included, `Equal`, `Approx` and `EachApprox`.
+Four subtypes of `AbstractApprox` are included, `Equal`, `Approx`, `EachApprox`, and `UpToPhase`.
 
 
 `IsApprox` implements the interface at least partially for each of: `isone`, `iszero`, `ishermitian`, `issymmetric`,
