@@ -1,3 +1,9 @@
 .DS_Store
 /Manifest.toml
 /dev/
+.envrc
+repl_history.jl
+*/.ipynb_checkpoints
+*/Untitle*
+bin/julia
+
