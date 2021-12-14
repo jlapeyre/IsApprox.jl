@@ -95,7 +95,9 @@ issymmetric(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(approx_te
 
 # complex.jl
 isreal(x::Real, approx_test::AbstractApprox=Equal()) = true
-isreal(z::Complex, approx_test::AbstractApprox=Equal()) = iszero(imag(z), approx_test)
+isreal(z::Complex, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, real(z), z)
+# Old way
+#isreal(z::Complex, approx_test::AbstractApprox=Equal()) = iszero(imag(z), approx_test)
 
 ### isinteger
 
