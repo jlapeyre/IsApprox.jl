@@ -120,7 +120,11 @@ isinteger(x::AbstractFloat, approx_test::AbstractApprox=Equal()) = isapprox(appr
 
 # complex.jl
 isinteger(z::Complex, approx_test::AbstractApprox=Equal()) =
-    isreal(z, approx_test) & isinteger(real(z), approx_test)
+    isreal(z, approx_test) && isinteger(real(z), approx_test)
+
+# TODO: Need to think about difference between real(z) and abs(z) regarding tolerance in all
+# methods for complex numbers (not just isingeger)
+isinteger(z::Complex, approx_test::UpToPhase) = isinteger(abs(z), approx_test)
 
 isinteger(x::Rational, approx_test::AbstractApprox) = isinteger(float(x), approx_test)
 

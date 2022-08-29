@@ -29,15 +29,25 @@ import LinearAlgebra
     @test ! iszero(m, Equal()) # exact
 end
 
-@testset "isreal, isinteger" begin
+@testset "isreal" begin
     @test isreal(1)
     @test isreal(1.0)
     @test isreal(1.0, Approx())
     @test ! isreal(1.0 + 1e-10im)
-    @test ! isreal(1.0 + 1e-10im, Approx())
+    @test ! isreal(1.0 + 1e-7im, Approx())
     @test isreal(1.0 + 1e-10im, Approx(atol=1e-9))
+end
+
+@testset "isinteger" begin
     @test isinteger(1)
     @test isinteger(1, Approx())
+    @test isinteger(1 + 1e-8, Approx())
+    @test ! isinteger(1 + 1e-5, Approx())
+    @test isinteger(1000 + 1e-5, Approx())
+    @test isinteger(1 + im * 1e-8, Approx())
+    @test ! isinteger(1 + im * 1e-5, Approx())
+    @test isinteger(exp(im*2), UpToPhase())
+    @test ! isinteger(1.1 * exp(im*2), UpToPhase())
 end
 
 @testset "isdiag" begin
