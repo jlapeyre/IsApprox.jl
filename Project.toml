@@ -4,6 +4,7 @@ authors = ["John Lapeyre <jlapeyre@users.noreply.github.com>"]
 version = "0.1.5"
 
 [deps]
+DictTools = "6033591e-aae9-4c88-8f5f-a341f9ca5325"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]

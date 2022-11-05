@@ -152,6 +152,30 @@ Return `true` if `X` and `Y` anticommute.
 """
 anticommutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, X * Y, -(Y * X))
 
+"""
+    isnormalized(itr, approx_test::AbstractApprox=Equal())
+
+Return `true` if `itr` is normalized, that is, if the items sum to one.
+If `itr` is a dictionary, the items are the values.
+"""
+isnormalized(itr, approx_test::AbstractApprox=Equal()) = isnormalized(Base.IteratorEltype(itr), itr, approx_test)
+isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), 1)
+isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), one(eltype(itr)))
+isnormalized(d::DictTools._AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(approx_test, sum(values(d)), one(V))
+
+_all_possemidef(itr, approx_test) = all(x -> ispossemidef(x, approx_test), itr)
+_all_possemidef(d::DictTools._AbstractDict, approx_test) = _all_possemidef(values(d), approx_test)
+
+"""
+    isprobdist(itr, approx_test=Equal())
+
+Return `true` if the items in `itr` form a probability distribution, that is
+sum to one and are non-negative.
+If `itr` is a dictionary, `values(itr)` is tested.
+"""
+isprobdist(itr, approx_test=Equal()) = isnormalized(itr, approx_test) && _all_possemidef(itr, approx_test)
+
+
 # Some of the following from QuantumInfo.jl
 # might be implemented here:
 # ischannel
@@ -163,7 +187,7 @@ anticommutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, 
 # Yao.jl
 #
 # iscommute
-# isnormalized
+# [done] isnormalized
 # isreflexive  <-- isinvolution is a better name, See above
 
 # From other libraries

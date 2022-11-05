@@ -4,6 +4,34 @@ using Test
 import LinearAlgebra
 
 
+@testset "isnormalized, isprobdist" begin
+    v1 = collect(1:10) ./ sum(1:10)
+    g1 = (x for x in v1)
+    d1 = Dict(i => v1[i] for i in eachindex(v1))
+    for c in (v1, g1, d1)
+        @test isprobdist(c)
+        @test isnormalized(c)
+    end
+    _v2 = collect(1:10)
+    _v2[5] = -5
+    v2 = _v2 ./ sum(_v2)
+    g2 = (x for x in v2)
+    d2 = Dict(i => v2[i] for i in eachindex(v2))
+    for c in (v2, g2, d2)
+        @test ! isprobdist(c)
+        @test isnormalized(c)
+    end
+    v3 = copy(v2)
+    v3[end] *= 2
+    @test !isprobdist(v3)
+
+    v4 = [x + 1e-10 * (rand() - 0.5) for x in v1]
+    @test ! isprobdist(v4)
+    @test isprobdist(v4, Approx())
+    @test ! isprobdist(v4, Approx(atol=1e-16))
+end
+
+
 @testset "isone, iszero" begin
     @test isone(1.0)
     @test ! isone(0.0)
