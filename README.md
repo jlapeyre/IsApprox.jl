@@ -59,7 +59,7 @@ Four subtypes of `AbstractApprox` are included, `Equal`, `Approx`, `EachApprox`,
 
 `IsApprox` implements the interface at least partially for each of: `isone`, `iszero`, `ishermitian`, `issymmetric`,
 `isreal`, `isinteger`, `istriu`, `istril`, `isbanded`, `isdiag`, `isposdef`,
-`ispossemidef`, `isunitary`, `isinvolution`.
+`ispossemidef`, `isunitary`, `isinvolution`, `isnormalized`, `isprobdist`.
 
 Consider `ishermitian`.
 
