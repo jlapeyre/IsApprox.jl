@@ -161,10 +161,10 @@ If `itr` is a dictionary, the items are the values.
 isnormalized(itr, approx_test::AbstractApprox=Equal()) = isnormalized(Base.IteratorEltype(itr), itr, approx_test)
 isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), 1)
 isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), one(eltype(itr)))
-isnormalized(d::DictTools._AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(approx_test, sum(values(d)), one(V))
+isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(approx_test, sum(values(d)), one(V))
 
 _all_possemidef(itr, approx_test) = all(x -> ispossemidef(x, approx_test), itr)
-_all_possemidef(d::DictTools._AbstractDict, approx_test) = _all_possemidef(values(d), approx_test)
+_all_possemidef(d::_AbstractDict, approx_test) = _all_possemidef(values(d), approx_test)
 
 """
     isprobdist(itr, approx_test=Equal())

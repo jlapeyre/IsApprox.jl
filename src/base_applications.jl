@@ -130,8 +130,11 @@ isinteger(x::Rational, approx_test::AbstractApprox) = isinteger(float(x), approx
 
 ### istriu, istril, isbanded, isdiag
 
+# For compatibility
+_require_one_based_indexing(A...) = !Base.has_offset_axes(A...) || throw(ArgumentError("offset arrays are not supported but got an array with index other than 1"))
+
 function istriu(A::AbstractMatrix, k::Integer = 0; approx::AbstractApprox=Equal())
-    Base.require_one_based_indexing(A)
+    _require_one_based_indexing(A)
     m, n = size(A)
     for j in 1:min(n, m + k - 1)
         for i in max(1, j - k + 1):m
@@ -143,7 +146,7 @@ end
 istriu(x::Number, ::AbstractApprox) = true
 
 function istril(A::AbstractMatrix, k::Integer = 0; approx::AbstractApprox=Equal())
-    Base.require_one_based_indexing(A)
+    _require_one_based_indexing(A)
     m, n = size(A)
     for j in max(1, k + 2):n
         for i in 1:min(j - k - 1, m)

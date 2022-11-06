@@ -1,13 +1,14 @@
 name = "IsApprox"
 uuid = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
 authors = ["John Lapeyre <jlapeyre@users.noreply.github.com>"]
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
-DictTools = "6033591e-aae9-4c88-8f5f-a341f9ca5325"
+Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
+Dictionaries = "0.2, 0.3"
 julia = "1"
 
 [extras]
