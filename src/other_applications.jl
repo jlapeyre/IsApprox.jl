@@ -65,6 +65,8 @@ isposdef(A::AbstractMatrix) = isposdef(A, Equal())
 isposdef(A::AbstractMatrix, ::Equal) =
     ishermitian(A, Equal()) && LinearAlgebra.isposdef(LinearAlgebra.cholesky(LinearAlgebra.Hermitian(A); check = false))
 
+
+
 ## Compared two methods:
 ## a) Allocate, ie m' * m. b) iterate over columns
 ## Found:
@@ -163,8 +165,10 @@ isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = i
 isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), one(eltype(itr)))
 isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(approx_test, sum(values(d)), one(V))
 
+# A Vector has no algebraic interpretation wrt isposdef, ispossemidef. So we don't define
+# a method. To help isprobdist, we do the following.
 _all_possemidef(itr, approx_test) = all(x -> ispossemidef(x, approx_test), itr)
-_all_possemidef(d::_AbstractDict, approx_test) = _all_possemidef(values(d), approx_test)
+_all_possemidef(d::AbstractDict, approx_test) = _all_possemidef(values(d), approx_test)
 
 """
     isprobdist(itr, approx_test=Equal())
@@ -174,7 +178,6 @@ sum to one and are non-negative.
 If `itr` is a dictionary, `values(itr)` is tested.
 """
 isprobdist(itr, approx_test=Equal()) = isnormalized(itr, approx_test) && _all_possemidef(itr, approx_test)
-
 
 # Some of the following from QuantumInfo.jl
 # might be implemented here:

@@ -2,7 +2,7 @@ module IsApprox
 
 using Dictionaries: Dictionaries
 export AbstractApprox, Equal, EachApprox, Approx, UpToPhase
-export ispossemidef, isunitary, isinvolution, isidempotent, isnormal, commutes, anticommutes
+export isposdef, ispossemidef, isunitary, isinvolution, isidempotent, isnormal, commutes, anticommutes
 export isnormalized, isprobdist
 
 # This is from DictTools.jl which is not yet registered

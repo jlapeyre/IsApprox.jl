@@ -1,5 +1,6 @@
 using IsApprox
-using IsApprox: isone, iszero, isreal, isinteger, ispossemidef, isposdef, isdiag
+using IsApprox: IsApprox, isone, iszero, isreal, isinteger, ispossemidef, isposdef, isdiag
+using Dictionaries: Dictionary
 using Test
 import LinearAlgebra
 
@@ -175,4 +176,15 @@ end
     @test isapprox(UpToPhase(), m, m .* cis(2*pi*1.3))
     @test isapprox(UpToPhase(), m, m .* (1+1e-10)*cis(2*pi*1.3))
     @test ! isapprox(UpToPhase(), m, m .* (1+1e-7)*cis(2*pi*1.3))
+end
+
+@testset "Dictionary" begin
+    # bug at commit ebfe206de7d
+    n = 5
+    _v = rand(n)
+    v = _v ./ sum(_v)
+    d = Dictionary(1:n, v)
+    @test IsApprox._all_possemidef(d, Approx())
+    @test isnormalized(d, Approx())
+    @test isprobdist(d, Approx())
 end
