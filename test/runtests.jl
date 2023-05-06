@@ -4,6 +4,11 @@ using Dictionaries: Dictionary
 using Test
 import LinearAlgebra
 
+if VERSION >= v"1.7"
+    include("jet_test.jl")
+end
+
+include("aqua_test.jl")
 
 @testset "isnormalized, isprobdist" begin
     v1 = collect(1:10) ./ sum(1:10)

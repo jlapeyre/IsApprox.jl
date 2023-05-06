@@ -164,6 +164,8 @@ isnormalized(itr, approx_test::AbstractApprox=Equal()) = isnormalized(Base.Itera
 isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), 1)
 isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), one(eltype(itr)))
 isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(approx_test, sum(values(d)), one(V))
+isnormalized(x::Base.HasEltype, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
+isnormalized(x::Base.EltypeUnknown, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
 
 # A Vector has no algebraic interpretation wrt isposdef, ispossemidef. So we don't define
 # a method. To help isprobdist, we do the following.
