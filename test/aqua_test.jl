@@ -7,11 +7,6 @@ const ThePackage = IsApprox
     Aqua.test_deps_compat(ThePackage)
 end
 
-# This often gives false positive
-@testset "aqua project toml formatting" begin
-    Aqua.test_project_toml_formatting(ThePackage)
-end
-
 @testset "aqua unbound_args" begin
     Aqua.test_unbound_args(ThePackage)
 end
@@ -28,8 +23,8 @@ if VERSION >= v"1.7"
     end
 end
 
-@testset "aqua piracy" begin
-    Aqua.test_piracy(ThePackage)
+@testset "aqua piracies" begin
+    Aqua.test_piracies(ThePackage)
 end
 
 @testset "aqua project extras" begin
