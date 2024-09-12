@@ -22,6 +22,9 @@ Demands that each pair of elements are approximately equal.
 """
 struct EachApprox{T} <: AbstractApprox
     kw::T
+    function EachApprox(kw::Base.Pairs)
+        new{typeof(kw)}(kw)
+    end
 end
 EachApprox(; kws...) = EachApprox(kws)
 
@@ -35,7 +38,11 @@ For example, `Approx(atol=1e-9)`.
 """
 struct Approx{T} <: AbstractApprox
     kw::T
+    function Approx(kw::Base.Pairs)
+        new{typeof(kw)}(kw)
+    end
 end
+
 Approx(; kws...) = Approx(kws)
 
 """
@@ -81,6 +88,9 @@ that is a number whose absolute value is one.
 """
 struct UpToPhase{T} <: AbstractApprox
     kw::T
+    function UpToPhase(kw::Base.Pairs)
+        new{typeof(kw)}(kw)
+    end
 end
 UpToPhase(; kws...) = UpToPhase(kws)
 

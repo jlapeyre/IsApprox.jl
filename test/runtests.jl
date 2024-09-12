@@ -193,3 +193,11 @@ end
     @test isnormalized(d, Approx())
     @test isprobdist(d, Approx())
 end
+
+@testset "Bad construction" begin
+    @test_throws MethodError Approx(3)
+    @test_throws MethodError Approx(1e-10)
+    @test_throws MethodError EachApprox(1e-10)
+    @test_throws MethodError EachApprox("dog")
+    @test_throws MethodError UpToPhase(1e-10)
+end
