@@ -1,5 +1,7 @@
 module IsApprox
 
+using PrecompileTools: @setup_workload, @compile_workload
+
 using Dictionaries: Dictionaries
 export AbstractApprox, Equal, EachApprox, Approx, UpToPhase
 export isposdef, ispossemidef, isunitary, isinvolution, isidempotent, isnormal, commutes, anticommutes
@@ -16,5 +18,6 @@ const _AbstractDict{T, V} = Union{AbstractDict{T,V}, Dictionaries.AbstractDictio
 include("core.jl")
 include("base_applications.jl")
 include("other_applications.jl")
+include("precompile.jl")
 
 end # module

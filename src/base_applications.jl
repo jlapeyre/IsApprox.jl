@@ -71,12 +71,13 @@ end
 
 # This uses the isapprox interface, which compares using a norm
 ishermitian(A::AbstractMatrix, approx_test::Approx) = isapprox(approx_test, A, adjoint(A))
-
 ishermitian(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, conj(x))
-
 ishermitian(A::Hermitian, ::AbstractApprox=Equal()) = true
+ishermitian(A::Hermitian, ::Approx) = true
 ishermitian(A::Symmetric{<:Real}, ::AbstractApprox=Equal()) = true
+ishermitian(A::Symmetric{<:Real}, ::Approx) = true
 ishermitian(A::Symmetric{<:Complex}, approx_test::AbstractApprox=Equal()) = isreal(A, approx_test)
+ishermitian(A::Symmetric{<:Complex}, approx_test::Approx) = isreal(A, approx_test)
 issymmetric(A::Hermitian{<:Real}, ::AbstractApprox=Equal()) = true
 issymmetric(A::Hermitian{<:Complex}, approx_test::AbstractApprox=Equal()) = isreal(A, approx_test)
 issymmetric(A::Symmetric, ::AbstractApprox=Equal()) = true

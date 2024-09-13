@@ -6,16 +6,16 @@ version = "1.0.0"
 [deps]
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 
 [compat]
 Aqua = ">= 0.8"
 Dictionaries = "0.2, 0.3, 0.4"
-julia = "1"
-# Aqua wants these bogus versions. WTF
-# Pkg.status will not give me numbers to use
-Test = ">= 0.0"
-LinearAlgebra = ">= 0.0"
 JET = ">= 0.0"
+LinearAlgebra = ">= 0.0"
+PrecompileTools = "1"
+Test = ">= 0.0"
+julia = "1"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
@@ -24,4 +24,3 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "Aqua", "JET"]
-# test = ["Test", "Aqua"]
