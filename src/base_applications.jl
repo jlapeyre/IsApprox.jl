@@ -2,12 +2,14 @@
 ### It may be necessary to instead replace the `Base` and `LinearAlgebra` functions
 ### if `IsApprox` is widely adopted.
 
+using LinearAlgebra: Hermitian, Symmetric, HermOrSym
+
 ### isone, iszero
 
 isone(x, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, one(x))
 iszero(x, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, zero(x))
-iszero(x::AbstractArray, approx_test::AbstractApprox=Equal()) =
-    all(y -> iszero(y, approx_test), x)
+iszero(approx_test::AbstractApprox) = x -> iszero(x, approx_test)
+iszero(x::AbstractArray, approx_test::AbstractApprox=Equal()) = all(iszero(approx_test), x)
 isone(x::BigInt, ::Equal) = Base.isone(x)
 iszero(x::BigInt, ::Equal) = Base.iszero(x)
 
@@ -72,6 +74,13 @@ ishermitian(A::AbstractMatrix, approx_test::Approx) = isapprox(approx_test, A, a
 
 ishermitian(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, conj(x))
 
+ishermitian(A::Hermitian, ::AbstractApprox=Equal()) = true
+ishermitian(A::Symmetric{<:Real}, ::AbstractApprox=Equal()) = true
+ishermitian(A::Symmetric{<:Complex}, approx_test::AbstractApprox=Equal()) = isreal(A, approx_test)
+issymmetric(A::Hermitian{<:Real}, ::AbstractApprox=Equal()) = true
+issymmetric(A::Hermitian{<:Complex}, approx_test::AbstractApprox=Equal()) = isreal(A, approx_test)
+issymmetric(A::Symmetric, ::AbstractApprox=Equal()) = true
+
 issymmetric(A::AbstractMatrix{<:Real}, approx_test::AbstractApprox=Equal()) =
     ishermitian(A, approx_test)
 
@@ -98,6 +107,34 @@ isreal(x::Real, approx_test::AbstractApprox=Equal()) = true
 isreal(z::Complex, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, real(z), z)
 # Old way
 #isreal(z::Complex, approx_test::AbstractApprox=Equal()) = iszero(imag(z), approx_test)
+
+isreal(x::AbstractArray{<:Real}, approx_test::AbstractApprox=Equal()) = true
+
+isreal(approx_test::AbstractApprox) = x -> isreal(x, approx_test)
+isreal(x::AbstractArray, approx_test::AbstractApprox=Equal()) = all(isreal(approx_test),x)
+
+isreal(A::HermOrSym{<:Real}, approx_test::AbstractApprox=Equal()) = true
+function isreal(A::HermOrSym, approx_test::AbstractApprox=Equal())
+    n = size(A, 1)
+    @inbounds if A.uplo == 'U'
+        for j in 1:n
+            for i in 1:(j - (A isa Hermitian))
+                if !isreal(A.data[i,j], approx_test)
+                    return false
+                end
+            end
+        end
+    else
+        for j in 1:n
+            for i in (j + (A isa Hermitian)):n
+                if !isreal(A.data[i,j], approx_test)
+                    return false
+                end
+            end
+        end
+    end
+    return true
+end
 
 ### isinteger
 
@@ -133,6 +170,7 @@ isinteger(x::Rational, approx_test::AbstractApprox) = isinteger(float(x), approx
 # For compatibility
 _require_one_based_indexing(A...) = !Base.has_offset_axes(A...) || throw(ArgumentError("offset arrays are not supported but got an array with index other than 1"))
 
+# TODO: Why is approx a kw arg here and below?
 function istriu(A::AbstractMatrix, k::Integer = 0; approx::AbstractApprox=Equal())
     _require_one_based_indexing(A)
     m, n = size(A)
@@ -162,3 +200,6 @@ isbanded(A::AbstractMatrix, kl::Integer, ku::Integer; approx::AbstractApprox=Equ
 
 isdiag(A::AbstractMatrix; approx::AbstractApprox=Equal()) = isbanded(A, 0, 0; approx=approx)
 isdiag(x::Number; approx::AbstractApprox=Equal()) = true
+isdiag(A::HermOrSym; approx::AbstractApprox=Equal()) =
+    isdiag(A.uplo == 'U' ? LinearAlgebra.UpperTriangular(A.data) :
+    LinearAlgebra.LowerTriangular(A.data); approx=approx)
