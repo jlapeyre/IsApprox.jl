@@ -6,6 +6,12 @@ be computed. See `Equal`, `Approx`, and `EachApprox`.
 """
 abstract type AbstractApprox end
 
+if VERSION < v"1.7"
+    const Pairs = Base.Iterators.Pairs
+else
+    const Pairs = Base.Pairs
+end
+
 """
     Equal <: AbstractApprox
 
@@ -22,7 +28,7 @@ Demands that each pair of elements are approximately equal.
 """
 struct EachApprox{T} <: AbstractApprox
     kw::T
-    function EachApprox(kw::Base.Pairs)
+    function EachApprox(kw::Pairs)
         new{typeof(kw)}(kw)
     end
 end
@@ -38,7 +44,7 @@ For example, `Approx(atol=1e-9)`.
 """
 struct Approx{T} <: AbstractApprox
     kw::T
-    function Approx(kw::Base.Pairs)
+    function Approx(kw::Pairs)
         new{typeof(kw)}(kw)
     end
 end
@@ -88,7 +94,7 @@ that is a number whose absolute value is one.
 """
 struct UpToPhase{T} <: AbstractApprox
     kw::T
-    function UpToPhase(kw::Base.Pairs)
+    function UpToPhase(kw::Pairs)
         new{typeof(kw)}(kw)
     end
 end

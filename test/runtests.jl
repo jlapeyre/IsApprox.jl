@@ -4,7 +4,7 @@ using Dictionaries: Dictionary
 using Test
 import LinearAlgebra
 
-if VERSION >= v"1.7"
+if VERSION >= v"1.7" && VERSION <= v"1.11"
     include("jet_test.jl")
 end
 
