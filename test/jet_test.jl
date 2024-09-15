@@ -96,5 +96,8 @@ function run_reports()
     for rep in somereports
         print_report(rep)
     end
+    @test isempty(somereports)
     return (somereports, reports)
 end
+
+run_reports()

@@ -5,7 +5,9 @@ using Test
 import LinearAlgebra
 
 if VERSION >= v"1.7" && VERSION <= v"1.11"
-    include("jet_test.jl")
+    @testset "JET" begin
+        include("jet_test.jl")
+    end
 end
 
 include("aqua_test.jl")
