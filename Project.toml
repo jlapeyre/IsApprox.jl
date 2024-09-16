@@ -1,7 +1,7 @@
 name = "IsApprox"
 uuid = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
 authors = ["John Lapeyre <jlapeyre@users.noreply.github.com>"]
-version = "1.0.0"
+version = "1.0.1"
 
 [deps]
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
