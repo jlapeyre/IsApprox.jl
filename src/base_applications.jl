@@ -182,7 +182,7 @@ function istriu(A::AbstractMatrix, k::Integer = 0; approx::AbstractApprox=Equal(
     end
     return true
 end
-istriu(x::Number, ::AbstractApprox) = true
+istriu(::Number, ::AbstractApprox=Equal()) = true
 
 function istril(A::AbstractMatrix, k::Integer = 0; approx::AbstractApprox=Equal())
     _require_one_based_indexing(A)
@@ -194,7 +194,7 @@ function istril(A::AbstractMatrix, k::Integer = 0; approx::AbstractApprox=Equal(
     end
     return true
 end
-istril(x::Number, ::AbstractApprox) = true
+istril(::Number, ::AbstractApprox=Equal()) = true
 
 isbanded(A::AbstractMatrix, kl::Integer, ku::Integer; approx::AbstractApprox=Equal()) =
     istriu(A, kl; approx=approx) && istril(A, ku; approx=approx)

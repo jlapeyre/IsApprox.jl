@@ -66,12 +66,28 @@ end
 end
 
 @testset "isreal" begin
+    isreal = IsApprox.isreal
+
     @test isreal(1)
     @test isreal(1.0)
     @test isreal(1.0, Approx())
     @test ! isreal(1.0 + 1e-10im)
     @test ! isreal(1.0 + 1e-7im, Approx())
     @test isreal(1.0 + 1e-10im, Approx(atol=1e-9))
+
+    m = real.(rand(ComplexF64, 3, 3))
+    @test isreal(m)
+    m_noisy = m + 1e-14 * randn(ComplexF64, 3, 3)
+    @test !isreal(m_noisy)
+
+    for approx in (Approx, EachApprox)
+        @test isreal(m_noisy, approx())
+        @test isreal(m_noisy, approx(atol=1e-8))
+        @test !isreal(m_noisy, approx(atol=1e-16))
+        @test isreal(m_noisy, approx())
+        @test isreal(m_noisy, approx(atol=1e-8))
+        @test !isreal(m_noisy, approx(atol=1e-16))
+    end
 end
 
 @testset "isinteger" begin
@@ -202,4 +218,84 @@ end
     @test_throws MethodError EachApprox(1e-10)
     @test_throws MethodError EachApprox("dog")
     @test_throws MethodError UpToPhase(1e-10)
+end
+
+# These methods only exist to avoid method ambiguity
+@testset "BigInt BigFloat Rational" begin
+    isone = IsApprox.isone
+    iszero = IsApprox.iszero
+    isinteger = IsApprox.isinteger
+    @test isone(big(1))
+    @test !isone(big(0))
+    @test !iszero(big(1))
+    @test iszero(big(0))
+    @test isone(big(1), Equal())
+    @test !isone(big(0), Equal())
+    @test !iszero(big(1), Equal())
+    @test iszero(big(0), Equal())
+    @test isinteger(rationalize(42))
+    @test ! isinteger(1//2)
+end
+
+@testset "Hermitian Symmetric" begin
+    ishermitian = IsApprox.ishermitian
+    isreal = IsApprox.isreal
+    issymmetric = IsApprox.issymmetric
+    isdiag = IsApprox.isdiag
+
+    m = rand(ComplexF64, 4, 4);
+    m_herm = m + m'
+    @test !ishermitian(m)
+    @test ishermitian(m_herm)
+    noise = 1e-14 * randn(ComplexF64, 4, 4);
+    m_herm_noisy = m_herm + noise
+    @test ! ishermitian(m_herm_noisy)
+    @test ! ishermitian(m_herm_noisy, Equal())
+    @test ishermitian(m_herm_noisy, Approx())
+    @test ishermitian(m_herm_noisy, Approx(atol=1e-8))
+    @test ! ishermitian(m_herm_noisy, Approx(atol=1e-16))
+
+    m_Herm = LinearAlgebra.Hermitian(m)
+    @test ishermitian(m_Herm)
+    @test ishermitian(m_Herm, Approx())
+    @test !isreal(m_herm)
+    @test !isreal(m_herm, Approx())
+    @test !isreal(m_Herm)
+    @test !isreal(m_Herm, Approx())
+    @test !isdiag(m_herm)
+    @test !isdiag(m_Herm)
+    @test !isdiag(m_Herm; approx=Approx())
+
+    m = rand(Float64, 4, 4);
+    m_symm = m + m'
+    @test !ishermitian(m)
+    @test ishermitian(m_symm)
+    noise = 1e-14 * randn(Float64, 4, 4);
+    m_symm_noisy = m_symm + noise
+    @test ! ishermitian(m_symm_noisy)
+    @test ! ishermitian(m_symm_noisy, Equal())
+    @test ishermitian(m_symm_noisy, Approx())
+    @test ishermitian(m_symm_noisy, Approx(atol=1e-8))
+    @test ! ishermitian(m_symm_noisy, Approx(atol=1e-16))
+
+    m_Symm = LinearAlgebra.Symmetric(m)
+    @test ishermitian(m_Symm)
+    @test ishermitian(m_Symm, Approx())
+    @test isreal(m_symm)
+    @test isreal(m_symm, Approx())
+    @test isreal(m_Symm)
+    @test isreal(m_Symm, Approx())
+    @test !isdiag(m_symm)
+    @test !isdiag(m_Symm)
+    @test !isdiag(m_Symm, approx=Approx())
+end
+
+@testset "istriu, istril" begin
+    istriu = IsApprox.istriu
+    istril = IsApprox.istril
+    for istri in (istril, istril)
+        @test istri(1)
+        @test istri(1, Approx())
+        @test istri(1, EachApprox())
+    end
 end
