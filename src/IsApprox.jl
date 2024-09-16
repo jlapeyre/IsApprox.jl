@@ -6,6 +6,8 @@ using Dictionaries: Dictionaries
 export AbstractApprox, Equal, EachApprox, Approx, UpToPhase
 export isposdef, ispossemidef, isunitary, isinvolution, isidempotent, isnormal, commutes, anticommutes
 export isnormalized, isprobdist
+# From LinearAlgebra
+export ishermitian, issymmetric, istriu, istril, isbanded, isdiag
 
 # This is from DictTools.jl which is not yet registered
 """

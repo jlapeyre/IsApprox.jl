@@ -13,7 +13,7 @@
                     IsApprox.iszero(m, approx)
                     IsApprox.isone(m, approx)
                     IsApprox.isreal(m, approx)
-                    IsApprox.isdiag(m, approx=approx)
+                    IsApprox.isdiag(m, approx)
                     IsApprox.isunitary(m, approx)
                     IsApprox.isidempotent(m, approx)
                     IsApprox.isnormalized(m, approx)
