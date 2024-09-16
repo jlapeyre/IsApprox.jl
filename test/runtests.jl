@@ -233,7 +233,7 @@ end
     @test !isone(big(0), Equal())
     @test !iszero(big(1), Equal())
     @test iszero(big(0), Equal())
-    @test isinteger(rationalize(42))
+    @test isinteger(rationalize(42.0))
     @test ! isinteger(1//2)
 end
 
