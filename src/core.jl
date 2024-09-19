@@ -6,7 +6,6 @@ be computed. See `Equal`, `Approx`, and `EachApprox`.
 """
 abstract type AbstractApprox end
 
-
 if VERSION < v"1.7"
     const Pairs = Base.Iterators.Pairs
 else
@@ -66,7 +65,6 @@ Use the definition of approximate equality specified by `a` to determine
 if `x` is approximately `y`.
 """
 Base.isapprox(x, y, a::Union{EachApprox, Approx}) = isapprox(x, y; a.kw...)
-#Base.isapprox(a::Union{EachApprox, Approx}, x, y) = isapprox(x, y; a.kw...)
 
 """
     isapprox(A::AbstractArray, B::AbstractArray, a::EachApprox)

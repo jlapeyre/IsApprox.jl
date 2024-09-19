@@ -107,7 +107,7 @@ end
     m = [1.0 6.108385298833888e-20; 7.691926633708195e-20 1.0]
     @test isdiag(m0)
     @test ! isdiag(m)
-    @test isdiag(m; approx=Approx(atol=1e-10))
+    @test isdiag(m, Approx(atol=1e-10))
 end
 
 @testset "isposdef" begin
@@ -265,7 +265,7 @@ end
     @test !isreal(m_Herm, Approx())
     @test !isdiag(m_herm)
     @test !isdiag(m_Herm)
-    @test !isdiag(m_Herm; approx=Approx())
+    @test !isdiag(m_Herm, Approx())
 
     m = rand(Float64, 4, 4);
     m_symm = m + m'
@@ -288,7 +288,7 @@ end
     @test isreal(m_Symm, Approx())
     @test !isdiag(m_symm)
     @test !isdiag(m_Symm)
-    @test !isdiag(m_Symm, approx=Approx())
+    @test !isdiag(m_Symm, Approx())
 end
 
 @testset "istriu, istril" begin

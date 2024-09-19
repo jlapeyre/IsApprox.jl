@@ -3,12 +3,16 @@ import LinearAlgebra
 ## We use ispossemidef for numbers as well as matrices.
 ## This follows `ishermitian`, etc.
 
+import LinearAlgebra: isposdef
+
+ispossemidef(x) = ispossemidef(x, Equal())
+
 """
-    ispossemidef(x::Number, approx_test::AbstractApprox=Equal())
+    ispossemidef(x::Number, approx_test::AbstractApprox)
 
 Return `true` if `x` is (approximately) non-negative.
 """
-function ispossemidef(x::Real, approx_test::AbstractApprox=Equal())
+function ispossemidef(x::Real, approx_test::AbstractApprox)
     return x > zero(x) || iszero(x, approx_test)
 end
 
@@ -17,21 +21,21 @@ function _isposdef(z::Complex, approx_test::AbstractApprox, posdeffunc)
     return posdeffunc(real(z), approx_test) && iszero(imag(z), approx_test)
 end
 
-function ispossemidef(z::Complex, approx_test::AbstractApprox=Equal())
+function ispossemidef(z::Complex, approx_test::AbstractApprox)
     return _isposdef(z, approx_test, ispossemidef)
 end
 
-function isposdef(z::Complex, approx_test::AbstractApprox=Equal())
+function isposdef(z::Complex, approx_test::AbstractApprox)
     return _isposdef(z, approx_test, isposdef)
 end
 
 """
-    isposdef(x::Number, approx_test::AbstractApprox=Equal())
+    isposdef(x::Number, approx_test::AbstractApprox)
 
 Return `true` if `x` is approximately greater than zero.
 """
-isposdef(x::Number) = isposdef(x, Equal())
 isposdef(x::Real, ::Equal) = x > zero(x)
+#isposdef(x::Number) = isposdef(x, Equal())
 ## For methods other than `Equal`, x can be zero or negative
 isposdef(x::Number, approx_test::AbstractApprox) = ispossemidef(x, approx_test)
 
@@ -43,16 +47,16 @@ function _isposdef(m::AbstractMatrix, approx_test::AbstractApprox, posdeffunc)
 end
 
 """
-    ispossemidef(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+    ispossemidef(m::AbstractMatrix, approx_test::AbstractApprox)
 
 Return `true` if `m` is positive semidefinite.
 """
-function ispossemidef(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+function ispossemidef(m::AbstractMatrix, approx_test::AbstractApprox)
     return _isposdef(m, approx_test, ispossemidef)
 end
 
 """
-    isposdef(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+    isposdef(m::AbstractMatrix, approx_test::AbstractApprox)
 
 Return `true` if `m` is positive definite.
 """
@@ -60,7 +64,9 @@ function isposdef(m::AbstractMatrix, approx_test::AbstractApprox)
     return _isposdef(m, approx_test, isposdef)
 end
 
-isposdef(A::AbstractMatrix) = isposdef(A, Equal())
+# TODO: I think I no longer need this, after chaning arg order,
+# and importing all predicate functions
+#isposdef(A::AbstractMatrix) = isposdef(A, Equal())
 # copied from dense.jl
 isposdef(A::AbstractMatrix, ::Equal) =
     ishermitian(A, Equal()) && LinearAlgebra.isposdef(LinearAlgebra.cholesky(LinearAlgebra.Hermitian(A); check = false))
@@ -85,6 +91,8 @@ function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transp
     return true
 end
 
+isunitary(x) = isunitary(x, Equal())
+
 ## Use matrix norm.
 ## Slower, but more generally useful.
 function isunitary(m::AbstractMatrix, approx_test::Approx)
@@ -93,16 +101,16 @@ end
 
 _identity(x) = x
 """
-    isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+    isunitary(m::AbstractMatrix, approx_test::AbstractApprox)
 
 Return `true` if `m` is unitary. If `m` is real, this tests orthogonality.
 """
-isunitary(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) =
+isunitary(m::AbstractMatrix, approx_test::AbstractApprox) =
     _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
 
 # abs2 is much faster, but we would need to use sqrt to adjust the tolerance, thus losing any advantage.
-isunitary(x::Number, approx_test::AbstractApprox=Equal()) = isone(abs(x), approx_test)
-isunitary(J::LinearAlgebra.UniformScaling, approx_test::AbstractApprox=Equal()) = isunitary(J.λ, approx_test)
+isunitary(x::Number, approx_test::AbstractApprox) = isone(abs(x), approx_test)
+isunitary(J::LinearAlgebra.UniformScaling, approx_test::AbstractApprox) = isunitary(J.λ, approx_test)
 
 """
     _dotu(x::AbstractVector, y::AbstractVector)
@@ -120,51 +128,58 @@ function _dot(x::AbstractVector{<:Complex}, y::AbstractVector{<:Complex})
     return sum(*(z...) for z in zip(x, y))
 end
 
+isinvolution(x) = isinvolution(x, Equal())
+
 """
-    isinvolution(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+    isinvolution(m::AbstractMatrix, approx_test::AbstractApprox)
 
 Return `true` if `m * m == I`
 """
-isinvolution(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) = _isunitary(m, approx_test, _dot, transpose)
+isinvolution(m::AbstractMatrix, approx_test::AbstractApprox) = _isunitary(m, approx_test, _dot, transpose)
 
 function isinvolution(m::AbstractMatrix, approx_test::Approx)
     return  isapprox(m * m, LinearAlgebra.I, approx_test)
 end
 
-function isidempotent(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+isidempotent(x) = isidempotent(x, Equal())
+
+function isidempotent(m::AbstractMatrix, approx_test::AbstractApprox)
     return isapprox(m * m, m, approx_test)
 end
 
-function isnormal(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
+isnormal(x) = isnormal(x, Equal())
+
+function isnormal(m::AbstractMatrix, approx_test::AbstractApprox)
     return isapprox(m * m', m' * m, approx_test)
 end
 
 """
-    commutes(X, Y, approx_test::AbstractApprox=Equal())
+    commutes(X, Y, approx_test::AbstractApprox)
 
 Return `true` if `X` and `Y` commute.
 """
-commutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(X * Y, Y * X, approx_test)
+commutes(X, Y, approx_test::AbstractApprox) = isapprox(X * Y, Y * X, approx_test)
 
 """
-    anticommutes(X, Y, approx_test::AbstractApprox=Equal())
+    anticommutes(X, Y, approx_test::AbstractApprox)
 
 Return `true` if `X` and `Y` anticommute.
 """
-anticommutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(X * Y, -(Y * X), approx_test)
+anticommutes(X, Y, approx_test::AbstractApprox) = isapprox(X * Y, -(Y * X), approx_test)
 
 """
-    isnormalized(itr, approx_test::AbstractApprox=Equal())
+    isnormalized(itr, approx_test::AbstractApprox)
 
 Return `true` if `itr` is normalized, that is, if the items sum to one.
 If `itr` is a dictionary, the items are the values.
 """
-isnormalized(itr, approx_test::AbstractApprox=Equal()) = isnormalized(Base.IteratorEltype(itr), itr, approx_test)
-isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = isapprox(sum(itr), 1, approx_test)
-isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(sum(itr), one(eltype(itr)), approx_test)
-isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(sum(values(d)), one(V), approx_test)
+isnormalized(itr, approx_test::AbstractApprox) = isnormalized(Base.IteratorEltype(itr), itr, approx_test)
+isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox) = isapprox(sum(itr), 1, approx_test)
+isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox) = isapprox(sum(itr), one(eltype(itr)), approx_test)
+isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox) where V = isapprox(sum(values(d)), one(V), approx_test)
 isnormalized(x::Base.HasEltype, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
 isnormalized(x::Base.EltypeUnknown, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
+isnormalized(x) = isnormalized(x, Equal())
 
 # A Vector has no algebraic interpretation wrt isposdef, ispossemidef. So we don't define
 # a method. To help isprobdist, we do the following.
