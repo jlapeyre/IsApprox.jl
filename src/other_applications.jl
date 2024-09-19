@@ -65,8 +65,6 @@ isposdef(A::AbstractMatrix) = isposdef(A, Equal())
 isposdef(A::AbstractMatrix, ::Equal) =
     ishermitian(A, Equal()) && LinearAlgebra.isposdef(LinearAlgebra.cholesky(LinearAlgebra.Hermitian(A); check = false))
 
-
-
 ## Compared two methods:
 ## a) Allocate, ie m' * m. b) iterate over columns
 ## Found:
@@ -76,18 +74,19 @@ isposdef(A::AbstractMatrix, ::Equal) =
 ## 4. For rand(100, 100), iterating over columns is 1000 times faster. Fails on first column.
 ## `approx_test` is `Equal` or `EachApprox`.
 function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transposef)
+    _one = one(eltype(m))
     rowinds = axes(m)[2]
     for i in rowinds
-        isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, i)), 1) || return false
+        isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, i)), _one) || return false
         for j in i+1:last(rowinds)
-            isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, j)), 0) || return false
+            isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, j)) + _one, _one) || return false
         end
     end
     return true
 end
 
-## This is slower even for small matrices.
-## Then why am I using it ? (May 2021)
+## Use matrix norm.
+## Slower, but more generally useful.
 function isunitary(m::AbstractMatrix, approx_test::Approx)
     return  isapprox(approx_test, m' * m, LinearAlgebra.I)
 end
