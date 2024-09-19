@@ -6,15 +6,15 @@ using LinearAlgebra: Hermitian, Symmetric, HermOrSym
 
 ### isone, iszero
 
-isone(x, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, one(x))
-iszero(x, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, zero(x))
+isone(x, approx_test::AbstractApprox=Equal()) = isapprox(x, one(x), approx_test)
+iszero(x, approx_test::AbstractApprox=Equal()) = isapprox(x, zero(x), approx_test)
 iszero(approx_test::AbstractApprox) = x -> iszero(x, approx_test)
 iszero(x::AbstractArray, approx_test::AbstractApprox=Equal()) = all(iszero(approx_test), x)
 isone(x::BigInt, ::Equal) = Base.isone(x)
 iszero(x::BigInt, ::Equal) = Base.iszero(x)
 
-isone(A::StridedMatrix, approx_test::Approx) = isapprox(approx_test, A, one(A))
-iszero(A::StridedMatrix, approx_test::Approx) = isapprox(approx_test, A, zero(A))
+isone(A::StridedMatrix, approx_test::Approx) = isapprox(A, one(A), approx_test)
+iszero(A::StridedMatrix, approx_test::Approx) = isapprox(A, zero(A), approx_test)
 
 # dense.jl
 const ISONE_CUTOFF = 2^21 # 2M
@@ -62,7 +62,7 @@ function ishermitian(A::AbstractMatrix, approx_test::AbstractApprox=Equal())
         return false
     end
     for i = indsn, j = i:last(indsn)
-        if ! isapprox(approx_test, A[i,j], adjoint(A[j,i]))
+        if ! isapprox(A[i,j], adjoint(A[j,i]), approx_test)
             return false
         end
     end
@@ -70,8 +70,8 @@ function ishermitian(A::AbstractMatrix, approx_test::AbstractApprox=Equal())
 end
 
 # This uses the isapprox interface, which compares using a norm
-ishermitian(A::AbstractMatrix, approx_test::Approx) = isapprox(approx_test, A, adjoint(A))
-ishermitian(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, conj(x))
+ishermitian(A::AbstractMatrix, approx_test::Approx) = isapprox(A, adjoint(A), approx_test)
+ishermitian(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(x, conj(x), approx_test)
 ishermitian(A::Hermitian, ::AbstractApprox=Equal()) = true
 ishermitian(A::Hermitian, ::Approx) = true
 ishermitian(A::Symmetric{<:Real}, ::AbstractApprox=Equal()) = true
@@ -92,20 +92,20 @@ function issymmetric(A::AbstractMatrix, approx_test::AbstractApprox=Equal())
         return false
     end
     for i = first(indsn):last(indsn), j = (i):last(indsn)
-        if ! isapprox(approx_test, A[i,j], transpose(A[j,i]))
+        if ! isapprox(A[i,j], transpose(A[j,i]), approx_test)
             return false
         end
     end
     return true
 end
 
-issymmetric(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, x)
+issymmetric(x::Number, approx_test::AbstractApprox=Equal()) = isapprox(x, x, approx_test)
 
 ### isreal
 
 # complex.jl
 isreal(x::Real, approx_test::AbstractApprox=Equal()) = true
-isreal(z::Complex, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, real(z), z)
+isreal(z::Complex, approx_test::AbstractApprox=Equal()) = isapprox(real(z), z, approx_test)
 # Old way
 #isreal(z::Complex, approx_test::AbstractApprox=Equal()) = iszero(imag(z), approx_test)
 
@@ -154,7 +154,7 @@ isinteger(x::Integer, ::AbstractApprox=Equal()) = true
 ## We choose to this implementation because the default relative tolerance is
 ## reasonable. That is, `isapprox(approx_test, x - trunc(x), 0)` requires
 ## specifying `atol`.
-isinteger(x::AbstractFloat, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, x, trunc(x))
+isinteger(x::AbstractFloat, approx_test::AbstractApprox=Equal()) = isapprox(x, trunc(x), approx_test)
 
 # complex.jl
 isinteger(z::Complex, approx_test::AbstractApprox=Equal()) =

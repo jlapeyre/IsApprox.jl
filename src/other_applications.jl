@@ -77,9 +77,9 @@ function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transp
     _one = one(eltype(m))
     rowinds = axes(m)[2]
     for i in rowinds
-        isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, i)), _one) || return false
+        isapprox(dotf(view(m, :, i), view(transposef(m), :, i)), _one, approx_test) || return false
         for j in i+1:last(rowinds)
-            isapprox(approx_test, dotf(view(m, :, i), view(transposef(m), :, j)) + _one, _one) || return false
+            isapprox(dotf(view(m, :, i), view(transposef(m), :, j)) + _one, _one, approx_test) || return false
         end
     end
     return true
@@ -88,7 +88,7 @@ end
 ## Use matrix norm.
 ## Slower, but more generally useful.
 function isunitary(m::AbstractMatrix, approx_test::Approx)
-    return  isapprox(approx_test, m' * m, LinearAlgebra.I)
+    return  isapprox(m' * m, LinearAlgebra.I, approx_test)
 end
 
 _identity(x) = x
@@ -128,15 +128,15 @@ Return `true` if `m * m == I`
 isinvolution(m::AbstractMatrix, approx_test::AbstractApprox=Equal()) = _isunitary(m, approx_test, _dot, transpose)
 
 function isinvolution(m::AbstractMatrix, approx_test::Approx)
-    return  isapprox(approx_test, m * m, LinearAlgebra.I)
+    return  isapprox(m * m, LinearAlgebra.I, approx_test)
 end
 
 function isidempotent(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
-    return isapprox(approx_test, m * m, m)
+    return isapprox(m * m, m, approx_test)
 end
 
 function isnormal(m::AbstractMatrix, approx_test::AbstractApprox=Equal())
-    return isapprox(approx_test, m * m', m' * m)
+    return isapprox(m * m', m' * m, approx_test)
 end
 
 """
@@ -144,14 +144,14 @@ end
 
 Return `true` if `X` and `Y` commute.
 """
-commutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, X * Y, Y * X)
+commutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(X * Y, Y * X, approx_test)
 
 """
     anticommutes(X, Y, approx_test::AbstractApprox=Equal())
 
 Return `true` if `X` and `Y` anticommute.
 """
-anticommutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, X * Y, -(Y * X))
+anticommutes(X, Y, approx_test::AbstractApprox=Equal()) = isapprox(X * Y, -(Y * X), approx_test)
 
 """
     isnormalized(itr, approx_test::AbstractApprox=Equal())
@@ -160,9 +160,9 @@ Return `true` if `itr` is normalized, that is, if the items sum to one.
 If `itr` is a dictionary, the items are the values.
 """
 isnormalized(itr, approx_test::AbstractApprox=Equal()) = isnormalized(Base.IteratorEltype(itr), itr, approx_test)
-isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), 1)
-isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(approx_test, sum(itr), one(eltype(itr)))
-isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(approx_test, sum(values(d)), one(V))
+isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox=Equal()) = isapprox(sum(itr), 1, approx_test)
+isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox=Equal()) = isapprox(sum(itr), one(eltype(itr)), approx_test)
+isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox=Equal()) where V = isapprox(sum(values(d)), one(V), approx_test)
 isnormalized(x::Base.HasEltype, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
 isnormalized(x::Base.EltypeUnknown, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
 

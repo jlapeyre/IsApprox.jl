@@ -53,33 +53,34 @@ end
 Approx(; kws...) = Approx(kws)
 
 """
-    isapprox(::Equal, x, y)
+    isapprox(x, y, ::Equal)
 
 Return `true` if `x == y`.
 """
-Base.isapprox(::Equal, x, y) = (x == y)
+Base.isapprox(x, y, ::Equal) = (x == y)
 
 """
-    isapprox(a::Union{EachApprox, Approx}, x, y)
+    isapprox(x, y, a::Union{EachApprox, Approx})
 
 Use the definition of approximate equality specified by `a` to determine
 if `x` is approximately `y`.
 """
-Base.isapprox(a::Union{EachApprox, Approx}, x, y) = isapprox(x, y; a.kw...)
+Base.isapprox(x, y, a::Union{EachApprox, Approx}) = isapprox(x, y; a.kw...)
+#Base.isapprox(a::Union{EachApprox, Approx}, x, y) = isapprox(x, y; a.kw...)
 
 """
-    isapprox(a::EachApprox, A::AbstractArray, B::AbstractArray)
+    isapprox(A::AbstractArray, B::AbstractArray, a::EachApprox)
 
 Compute element-wise approximate equality.
 """
-function Base.isapprox(a::EachApprox, A::AbstractArray, B::AbstractArray)
+function Base.isapprox(A::AbstractArray, B::AbstractArray, approx::EachApprox)
     n1 = length(A)
     n2 = length(B)
     if n1 != n2
         return false
     end
     for (x, y) in zip(A, B)
-        if ! isapprox(a, x, y)
+        if ! isapprox(x, y, approx)
             return false
         end
     end
@@ -101,17 +102,17 @@ struct UpToPhase{T} <: AbstractApprox
 end
 UpToPhase(; kws...) = UpToPhase(kws)
 
-function Base.isapprox(a::UpToPhase, x::Number, y::Number)
+function Base.isapprox(x::Number, y::Number, a::UpToPhase)
     aa = Approx(;a.kw...)
-    if isapprox(aa, x, zero(x))
-        return isapprox(aa, y, zero(y))
-    elseif isapprox(aa, y, zero(y))
-        return isapprox(aa, x, zero(x))
+    if isapprox(x, zero(x), aa)
+        return isapprox(y, zero(y), aa)
+    elseif isapprox(y, zero(y), aa)
+        return isapprox(x, zero(x), aa)
     end
     return isunitary(x / y, aa)
 end
 
-function Base.isapprox(_app::UpToPhase,  A::AbstractArray, B::AbstractArray)
+function Base.isapprox(A::AbstractArray, B::AbstractArray, _app::UpToPhase)
     n1 = length(A)
     n2 = length(B)
     if n1 != n2
@@ -131,7 +132,7 @@ function Base.isapprox(_app::UpToPhase,  A::AbstractArray, B::AbstractArray)
                 isunitary(z, app) || return false
                 seen_non_zero_flag = true
             else
-                isapprox(app, a/b, z) || return false
+                isapprox(a/b, z, app) || return false
             end
         end
     end

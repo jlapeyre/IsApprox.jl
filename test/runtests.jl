@@ -192,14 +192,14 @@ end
 end
 
 @testset "UpToPhase" begin
-    @test isapprox(UpToPhase(), 2, 2)
-    @test isapprox(UpToPhase(), 2.1, 2.1 + 1e-10)
-    @test ! isapprox(UpToPhase(atol=1e-12), 2.1, 2.1 + 1e-10)
-    @test isapprox(UpToPhase(), 2.1, 2.1 * cis(2*pi*3.1))
+    @test isapprox(2, 2, UpToPhase())
+    @test isapprox(2.1, 2.1 + 1e-10, UpToPhase())
+    @test ! isapprox(2.1, 2.1 + 1e-10, UpToPhase(atol=1e-12))
+    @test isapprox(2.1, 2.1 * cis(2*pi*3.1), UpToPhase())
     m = rand(5, 5)
-    @test isapprox(UpToPhase(), m, m .* cis(2*pi*1.3))
-    @test isapprox(UpToPhase(), m, m .* (1+1e-10)*cis(2*pi*1.3))
-    @test ! isapprox(UpToPhase(), m, m .* (1+1e-7)*cis(2*pi*1.3))
+    @test isapprox(m, m .* cis(2*pi*1.3), UpToPhase())
+    @test isapprox(m, m .* (1+1e-10)*cis(2*pi*1.3), UpToPhase())
+    @test ! isapprox(m, m .* (1+1e-7)*cis(2*pi*1.3), UpToPhase())
 end
 
 @testset "Dictionary" begin
