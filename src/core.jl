@@ -37,10 +37,9 @@ EachApprox(; kws...) = EachApprox(kws)
 """
    Approx(; kws...) <: AbstractApprox
 
-Specifies using the legacy `isapprox` interface. For example,
-for `AbstractMatrix`, matrix norms are used to test closeness.
-`kw` are keyword pairs that are forwarded to `isapprox`.
-For example, `Approx(atol=1e-9)`.
+Specifies using the legacy `isapprox` interface. For example, for
+`AbstractMatrix`, vector norms are used to test closeness.  `kw` are keyword
+pairs that are forwarded to `isapprox`.  For example, `Approx(atol=1e-9)`.
 """
 struct Approx{T} <: AbstractApprox
     kw::T

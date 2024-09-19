@@ -72,7 +72,7 @@ function ishermitian(A::AbstractMatrix, approx_test::AbstractApprox)
     return true
 end
 
-# This method uses the isapprox interface, which compares using a norm.
+# This method uses the isapprox interface, which compares using the Frobenius norm.
 ishermitian(A::AbstractMatrix, approx_test::Approx) = isapprox(A, adjoint(A), approx_test)
 
 ishermitian(x::Number, approx_test::AbstractApprox) = isapprox(x, conj(x), approx_test)

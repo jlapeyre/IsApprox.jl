@@ -79,7 +79,7 @@ isposdef(A::AbstractMatrix, ::Equal) =
 ## 3. Doing the allocation, eg m' * m can be slightly faster. Eg for 100x100 dense identity matrix.
 ## 4. For rand(100, 100), iterating over columns is 1000 times faster. Fails on first column.
 ## `approx_test` is `Equal` or `EachApprox`.
-function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf, transposef)
+function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf::F1, transposef::F2) where {F1, F2}
     _one = one(eltype(m))
     rowinds = axes(m)[2]
     for i in rowinds
@@ -93,7 +93,7 @@ end
 
 isunitary(x) = isunitary(x, Equal())
 
-## Use matrix norm.
+## Use vector norm.
 ## Slower, but more generally useful.
 function isunitary(m::AbstractMatrix, approx_test::Approx)
     return  isapprox(m' * m, LinearAlgebra.I, approx_test)
