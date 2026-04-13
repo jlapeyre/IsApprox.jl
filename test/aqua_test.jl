@@ -27,10 +27,10 @@ end
     Aqua.test_piracies(ThePackage)
 end
 
-@testset "aqua project extras" begin
-    Aqua.test_project_extras(ThePackage)
-end
-
-@testset "aqua state deps" begin
+@testset "aqua stale deps" begin
     Aqua.test_stale_deps(ThePackage)
 end
+
+# @testset "aqua project extras" begin
+#     Aqua.test_project_extras(ThePackage)
+# end

@@ -13,7 +13,6 @@ const SKIP_MATCHES = [
 ]
 
 ## Skip reports for which return true
-## Skip reports for which return true
 const SKIP_REP_TESTS = [
     rep -> rep isa JET.UncaughtExceptionReport, # We intentionally throw MethodError
     # There were four of the following

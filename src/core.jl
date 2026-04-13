@@ -124,12 +124,12 @@ function Base.isapprox(A::AbstractArray, B::AbstractArray, _app::UpToPhase)
         elseif iszero(b, app)
             !iszero(a, app) && return false
         else
-            if ! seen_non_zero_flag
-                z = a/b
+            if !seen_non_zero_flag
+                z = a / b
                 isunitary(z, app) || return false
                 seen_non_zero_flag = true
             else
-                isapprox(a/b, z, app) || return false
+                isapprox(a, z * b, app) || return false
             end
         end
     end

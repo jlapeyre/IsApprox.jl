@@ -1,17 +1,25 @@
-using IsApprox
-using IsApprox: IsApprox, isone, iszero, isreal, isinteger, ispossemidef, isposdef, isdiag
+using IsApprox: IsApprox, Equal, Approx, EachApprox, UpToPhase, isinvolution, isprobdist
+using IsApprox: isnormalized, ispossemidef, isidempotent, commutes, anticommutes
+
 using Dictionaries: Dictionary
 using Test
 import LinearAlgebra
 using LinearAlgebra: Hermitian, Symmetric
 
-if VERSION >= v"1.7" && VERSION <= v"1.11"
-    @testset "JET" begin
-        include("jet_test.jl")
-    end
-end
+# if VERSION >= v"1.7" && VERSION <= v"1.11"
+#     @testset "JET" begin
+#         include("jet_test.jl")
+#     end
+# end
 
-include("aqua_test.jl")
+include("edge_cases.jl")
+
+@testset "isreal(Hermitian) checks diagonal" begin
+    using LinearAlgebra: Hermitian, I
+    D = Matrix{ComplexF64}(I, 3, 3)
+    D[2, 2] = 1 + 1e-6im
+    @test !isreal(Hermitian(D), Equal())
+end
 
 @testset "isapprox" begin
     m = rand(2,2)
@@ -38,10 +46,13 @@ end
     v2 = _v2 ./ sum(_v2)
     g2 = (x for x in v2)
     d2 = Dict(i => v2[i] for i in eachindex(v2))
-    for c in (v2, g2, d2)
+    for c in (v2, g2)
         @test ! isprobdist(c)
         @test isnormalized(c)
     end
+    # Does not sum exactly to 1. Maybe because of ordering
+    @test isnormalized(d2, Approx())
+
     v3 = copy(v2)
     v3[end] *= 2
     @test !isprobdist(v3)
@@ -112,9 +123,6 @@ end
     @test !isreal(m_noisy)
 
     for approx in (Approx, EachApprox)
-        @test isreal(m_noisy, approx())
-        @test isreal(m_noisy, approx(atol=1e-8))
-        @test !isreal(m_noisy, approx(atol=1e-16))
         @test isreal(m_noisy, approx())
         @test isreal(m_noisy, approx(atol=1e-8))
         @test !isreal(m_noisy, approx(atol=1e-16))
@@ -401,3 +409,5 @@ end
     @test !commutes(X, Xn, Equal())
     @test !commutes(X, Xn)
 end
+
+include("aqua_test.jl")

@@ -64,7 +64,7 @@ function isposdef(m::AbstractMatrix, approx_test::AbstractApprox)
     return _isposdef(m, approx_test, isposdef)
 end
 
-# TODO: I think I no longer need this, after chaning arg order,
+# TODO: I think I no longer need this, after changing arg order,
 # and importing all predicate functions
 #isposdef(A::AbstractMatrix) = isposdef(A, Equal())
 # copied from dense.jl
@@ -79,18 +79,27 @@ isposdef(A::AbstractMatrix, ::Equal) =
 ## 3. Doing the allocation, eg m' * m can be slightly faster. Eg for 100x100 dense identity matrix.
 ## 4. For rand(100, 100), iterating over columns is 1000 times faster. Fails on first column.
 ## `approx_test` is `Equal` or `EachApprox`.
-function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf::F1, transposef::F2) where {F1, F2}
+
+
+@views function _isunitary(m::AbstractMatrix, approx_test::AbstractApprox, dotf::F1, transposef::F2) where {F1, F2}
     _one = one(eltype(m))
     rowinds = axes(m)[2]
     for i in rowinds
-        isapprox(dotf(view(m, :, i), view(transposef(m), :, i)), _one, approx_test) || return false
+        vi = view(m, :, i)
+        ti = view(transposef(m), :, i)
+        isapprox(dotf(vi, ti), _one, approx_test) || return false
         for j in i+1:last(rowinds)
-            isapprox(dotf(view(m, :, i), view(transposef(m), :, j)) + _one, _one, approx_test) || return false
+            isapprox(dotf(vi, view(transposef(m), :, j)) + _one, _one, approx_test) || return false
         end
     end
     return true
 end
 
+"""
+    isunitary(x::Number, approx::AbstractApprox)
+
+Return true if |x| ≈ 1 under approx.
+"""
 isunitary(x) = isunitary(x, Equal())
 
 ## Use vector norm.
@@ -112,22 +121,6 @@ isunitary(m::AbstractMatrix, approx_test::AbstractApprox) =
 isunitary(x::Number, approx_test::AbstractApprox) = isone(abs(x), approx_test)
 isunitary(J::LinearAlgebra.UniformScaling, approx_test::AbstractApprox) = isunitary(J.λ, approx_test)
 
-"""
-    _dotu(x::AbstractVector, y::AbstractVector)
-
-Dot product with no complex conjugation of `x`. This dispatches to `LinearAlgebra.dot`
-if `x` and `y` are `Real`.
-"""
-_dot(x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) = LinearAlgebra.dot(x, y)
-
-_dot(x::AbstractVector{Complex{T}}, y::AbstractVector{Complex{T}}) where {T <: Union{Float64, Float32}} =
-    LinearAlgebra.BLAS.dotu(x, y)
-
-## There has got to be a better way than all of these _dot methods
-function _dot(x::AbstractVector{<:Complex}, y::AbstractVector{<:Complex})
-    return sum(*(z...) for z in zip(x, y))
-end
-
 isinvolution(x) = isinvolution(x, Equal())
 
 """
@@ -135,18 +128,53 @@ isinvolution(x) = isinvolution(x, Equal())
 
 Return `true` if `m * m == I`
 """
-isinvolution(m::AbstractMatrix, approx_test::AbstractApprox) = _isunitary(m, approx_test, _dot, transpose)
+function isinvolution(m::AbstractMatrix, approx::AbstractApprox)
+    indsm, indsn = axes(m)
+    indsm == indsn || return false
+    T = eltype(m)
+    oneT = oneunit(T)
+    @inbounds for i in indsn
+        for j in indsn
+            s = zero(T)
+            for k in indsn
+                s += m[i, k] * m[k, j]
+            end
+            if i == j
+                isapprox(s, oneT, approx) || return false
+            else
+                iszero(s, approx) || return false
+            end
+        end
+    end
+    return true
+end
 
 function isinvolution(m::AbstractMatrix, approx_test::Approx)
     return  isapprox(m * m, LinearAlgebra.I, approx_test)
 end
 
+"""
+    isidempotent(m::AbstractMatrix, approx::AbstractApprox)
+
+Return true if m is idempotent under approx, i.e., m * m ≈ m.
+- Equal: exact idempotency.
+- Approx: norm-based closeness via isapprox.
+- EachApprox: element-wise closeness.
+"""
 isidempotent(x) = isidempotent(x, Equal())
 
 function isidempotent(m::AbstractMatrix, approx_test::AbstractApprox)
     return isapprox(m * m, m, approx_test)
 end
 
+"""
+    isnormal(m::AbstractMatrix, approx::AbstractApprox)
+
+Return true if m is normal under approx, i.e., m * m' ≈ m' * m.
+- Equal: exact normality.
+- Approx: norm-based closeness via isapprox.
+- EachApprox: element-wise closeness.
+"""
 isnormal(x) = isnormal(x, Equal())
 
 function isnormal(m::AbstractMatrix, approx_test::AbstractApprox)
