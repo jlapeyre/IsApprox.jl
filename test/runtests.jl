@@ -1,5 +1,5 @@
 using IsApprox: IsApprox, Equal, Approx, EachApprox, UpToPhase, isinvolution, isprobdist
-using IsApprox: isnormalized, ispossemidef, isidempotent, commutes, anticommutes
+using IsApprox: isnormalized, ispossemidef, isidempotent, commutes, anticommutes, isunitary, isposdef, isdiag, ishermitian, issymmetric
 
 using Dictionaries: Dictionary
 using Test
@@ -11,6 +11,58 @@ using LinearAlgebra: Hermitian, Symmetric
 #         include("jet_test.jl")
 #     end
 # end
+
+using OffsetArrays
+
+@testset "Edge cases" begin
+    Q = Matrix(LinearAlgebra.qr(randn(5, 3)).Q[:, 1:3])
+    @test !isunitary(Q, EachApprox())  # should be false unless definition allows isometries
+
+    A = OffsetArray(zeros(3, 3), 0:2, 0:2)
+    @test_throws ArgumentError IsApprox.istriu(A, 0, Equal())
+
+    # Ensure methods work for SubArray views
+    M = Matrix{Float64}(LinearAlgebra.I, 4, 4)
+    V = @view M[:, :]
+    @test isunitary(V, EachApprox())
+
+    # Test iszero(approx) returns a predicate usable with all/allows.
+    A = fill(1e-11, 3, 3)
+    p = iszero(EachApprox(atol=1e-10))
+    @test all(p, A)
+
+    @test !iszero(NaN, Equal())
+    @test !isone(Inf, Approx())
+    @test !isreal(1 + NaN*im, Equal())
+
+    A = rand(3)
+    @test isapprox(A, -A, UpToPhase())
+    @test isapprox(Float64[], Float64[], UpToPhase())
+    @test isapprox(A, complex.(A) ./ cis(0.7), UpToPhase())
+
+    M = [0 1; 0 0]
+    @test !isposdef(M, Equal())
+
+    @test issymmetric(1.0, Approx())
+
+    bm = rand(3,3)
+    @test ishermitian((bm + bm')')
+
+    A = LinearAlgebra.diagm(0 => [1, 2, 3])[1:2, 1:3]
+    @test isdiag(A, Equal())
+
+    @test_throws DimensionMismatch commutes(rand(2,2), rand(3,3), Equal())
+
+    @test isinteger(big(1.0) + big(1e-30), Approx(rtol=1e-29))
+
+    using SparseArrays
+    S = spdiagm(0 => ones(5))
+    @test isdiag(S, Equal())
+
+    @test isapprox(zeros(0), zeros(0), EachApprox())
+
+    @test_throws MethodError isprobdist(["dog"], Approx())
+end
 
 include("edge_cases.jl")
 

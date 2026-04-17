@@ -3,4 +3,9 @@ Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
 IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+IsApprox = {path = ".."}

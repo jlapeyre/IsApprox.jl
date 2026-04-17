@@ -105,6 +105,7 @@ isunitary(x) = isunitary(x, Equal())
 ## Use vector norm.
 ## Slower, but more generally useful.
 function isunitary(m::AbstractMatrix, approx_test::Approx)
+    axes(m, 1) == axes(m, 2) || return false
     return  isapprox(m' * m, LinearAlgebra.I, approx_test)
 end
 
@@ -114,8 +115,10 @@ _identity(x) = x
 
 Return `true` if `m` is unitary. If `m` is real, this tests orthogonality.
 """
-isunitary(m::AbstractMatrix, approx_test::AbstractApprox) =
+function isunitary(m::AbstractMatrix, approx_test::AbstractApprox)
+    axes(m, 1) == axes(m, 2) || return false
     _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
+end
 
 # abs2 is much faster, but we would need to use sqrt to adjust the tolerance, thus losing any advantage.
 isunitary(x::Number, approx_test::AbstractApprox) = isone(abs(x), approx_test)
