@@ -18,9 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - '1.12'
           - '1.10'
-          - '1.6'
-          - '1.0'
+          # Disable 1.0 temporarily because of compatiblity with [workspace]
+#          - '1.0'
         os:
           - ubuntu-latest
           - macOS-latest
