@@ -88,7 +88,7 @@ isposdef(A::AbstractMatrix, ::Equal) =
         vi = view(m, :, i)
         ti = view(transposef(m), :, i)
         isapprox(dotf(vi, ti), _one, approx_test) || return false
-        for j in i+1:last(rowinds)
+        for j in (i + 1):last(rowinds)
             isapprox(dotf(vi, view(transposef(m), :, j)) + _one, _one, approx_test) || return false
         end
     end
@@ -106,7 +106,7 @@ isunitary(x) = isunitary(x, Equal())
 ## Slower, but more generally useful.
 function isunitary(m::AbstractMatrix, approx_test::Approx)
     axes(m, 1) == axes(m, 2) || return false
-    return  isapprox(m' * m, LinearAlgebra.I, approx_test)
+    return isapprox(m' * m, LinearAlgebra.I, approx_test)
 end
 
 _identity(x) = x
@@ -117,7 +117,7 @@ Return `true` if `m` is unitary. If `m` is real, this tests orthogonality.
 """
 function isunitary(m::AbstractMatrix, approx_test::AbstractApprox)
     axes(m, 1) == axes(m, 2) || return false
-    _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
+    return _isunitary(m, approx_test, LinearAlgebra.dot, _identity)
 end
 
 # abs2 is much faster, but we would need to use sqrt to adjust the tolerance, thus losing any advantage.
@@ -153,7 +153,7 @@ function isinvolution(m::AbstractMatrix, approx::AbstractApprox)
 end
 
 function isinvolution(m::AbstractMatrix, approx_test::Approx)
-    return  isapprox(m * m, LinearAlgebra.I, approx_test)
+    return isapprox(m * m, LinearAlgebra.I, approx_test)
 end
 
 """
@@ -211,7 +211,7 @@ If `itr` is a dictionary, the items are the values.
 isnormalized(itr, approx_test::AbstractApprox) = isnormalized(Base.IteratorEltype(itr), itr, approx_test)
 isnormalized(::Base.EltypeUnknown, itr, approx_test::AbstractApprox) = isapprox(sum(itr), 1, approx_test)
 isnormalized(::Base.HasEltype, itr, approx_test::AbstractApprox) = isapprox(sum(itr), one(eltype(itr)), approx_test)
-isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox) where V = isapprox(sum(values(d)), one(V), approx_test)
+isnormalized(d::_AbstractDict{<:Any, V}, approx_test::AbstractApprox) where {V} = isapprox(sum(values(d)), one(V), approx_test)
 # isnormalized(x::Base.HasEltype, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
 # isnormalized(x::Base.EltypeUnknown, approx_test::AbstractApprox) = throw(MethodError(isnormalized, (x, approx_test)))
 isnormalized(x) = isnormalized(x, Equal())
@@ -228,7 +228,7 @@ Return `true` if the items in `itr` form a probability distribution, that is
 sum to one and are non-negative.
 If `itr` is a dictionary, `values(itr)` is tested.
 """
-isprobdist(itr, approx_test=Equal()) = isnormalized(itr, approx_test) && _all_possemidef(itr, approx_test)
+isprobdist(itr, approx_test = Equal()) = isnormalized(itr, approx_test) && _all_possemidef(itr, approx_test)
 
 # Some of the following from QuantumInfo.jl
 # might be implemented here:

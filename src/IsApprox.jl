@@ -13,7 +13,7 @@ export ishermitian, issymmetric, istriu, istril, isbanded, isdiag
 
 Either an `AbstractDict` or an `AbstractDictionary`. A union type
 """
-const _AbstractDict{T, V} = Union{AbstractDict{T,V}, Dictionaries.AbstractDictionary{T,V}}
+const _AbstractDict{T, V} = Union{AbstractDict{T, V}, Dictionaries.AbstractDictionary{T, V}}
 
 include("core.jl")
 include("base_applications.jl")

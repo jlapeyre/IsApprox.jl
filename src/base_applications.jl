@@ -52,7 +52,7 @@ const ISONE_CUTOFF = 2^21 # 2M
 function isone(A::StridedMatrix, approx_test::AbstractApprox)
     m, n = size(A)
     m != n && return false # only square matrices can satisfy x == one(x)
-    if sizeof(A) < ISONE_CUTOFF
+    return if sizeof(A) < ISONE_CUTOFF
         _isone_triacheck(A, m, approx_test)
     else
         _isone_cachefriendly(A, m, approx_test)
@@ -62,9 +62,9 @@ end
 @inline function _isone_triacheck(A::StridedMatrix, m::Int, approx_test::AbstractApprox)
     @inbounds for i in 1:m, j in i:m
         if i == j
-            isone(A[i,i], approx_test) || return false
+            isone(A[i, i], approx_test) || return false
         else
-            iszero(A[i,j], approx_test) && iszero(A[j,i], approx_test) || return false
+            iszero(A[i, j], approx_test) && iszero(A[j, i], approx_test) || return false
         end
     end
     return true
@@ -74,7 +74,7 @@ end
 @inline function _isone_cachefriendly(A::StridedMatrix, m::Int, approx)
     @inbounds for i in 1:m
         isone(A[i, i], approx) || return false
-        for j in 1:i-1
+        for j in 1:(i - 1)
             iszero(A[j, i], approx) || return false
             iszero(A[i, j], approx) || return false
         end
@@ -101,7 +101,7 @@ function ishermitian(A::AbstractMatrix, approx_test::AbstractApprox)
     if indsm != indsn
         return false
     end
-    @inbounds for i = indsn, j = i:last(indsn)
+    @inbounds for i in indsn, j in i:last(indsn)
         isapprox(A[i, j], adjoint(A[j, i]), approx_test) || return false
     end
     return true
@@ -139,7 +139,7 @@ function issymmetric(A::AbstractMatrix, approx_test::AbstractApprox)
     if indsm != indsn
         return false
     end
-    @inbounds for i = first(indsn):last(indsn), j = i:last(indsn)
+    @inbounds for i in first(indsn):last(indsn), j in i:last(indsn)
         isapprox(A[i, j], transpose(A[j, i]), approx_test) || return false
     end
     # for i = first(indsn):last(indsn), j = (i):last(indsn)
@@ -173,7 +173,7 @@ isreal(z::Complex, approx_test::AbstractApprox) = isapprox(real(z), z, approx_te
 isreal(x::AbstractArray{<:Real}, approx_test::AbstractApprox) = true
 
 isreal(approx_test::AbstractApprox) = x -> isreal(x, approx_test)
-isreal(x::AbstractArray, approx_test::AbstractApprox) = all(isreal(approx_test),x)
+isreal(x::AbstractArray, approx_test::AbstractApprox) = all(isreal(approx_test), x)
 
 isreal(A::HermOrSym{<:Real}, approx_test::AbstractApprox) = true
 function isreal(A::HermOrSym, approx_test::AbstractApprox)
@@ -307,5 +307,7 @@ Supports Hermitian and Symmetric wrappers by delegating to triangular views.
 isdiag(A::AbstractMatrix, approx::AbstractApprox) = isbanded(A, 0, 0, approx)
 isdiag(x::Number, approx::AbstractApprox) = true
 isdiag(A::HermOrSym, approx::AbstractApprox) =
-    isdiag(A.uplo == 'U' ? LinearAlgebra.UpperTriangular(A.data) :
-    LinearAlgebra.LowerTriangular(A.data), approx)
+    isdiag(
+    A.uplo == 'U' ? LinearAlgebra.UpperTriangular(A.data) :
+        LinearAlgebra.LowerTriangular(A.data), approx
+)

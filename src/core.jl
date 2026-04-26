@@ -29,7 +29,7 @@ Demands that each pair of elements are approximately equal.
 struct EachApprox{T} <: AbstractApprox
     kw::T
     function EachApprox(kw::Pairs)
-        new{typeof(kw)}(kw)
+        return new{typeof(kw)}(kw)
     end
 end
 EachApprox(; kws...) = EachApprox(kws)
@@ -44,7 +44,7 @@ pairs that are forwarded to `isapprox`.  For example, `Approx(atol=1e-9)`.
 struct Approx{T} <: AbstractApprox
     kw::T
     function Approx(kw::Pairs)
-        new{typeof(kw)}(kw)
+        return new{typeof(kw)}(kw)
     end
 end
 
@@ -94,13 +94,13 @@ that is a number whose absolute value is one.
 struct UpToPhase{T} <: AbstractApprox
     kw::T
     function UpToPhase(kw::Pairs)
-        new{typeof(kw)}(kw)
+        return new{typeof(kw)}(kw)
     end
 end
 UpToPhase(; kws...) = UpToPhase(kws)
 
 function Base.isapprox(x::Number, y::Number, a::UpToPhase)
-    aa = Approx(;a.kw...)
+    aa = Approx(; a.kw...)
     if isapprox(x, zero(x), aa)
         return isapprox(y, zero(y), aa)
     elseif isapprox(y, zero(y), aa)
@@ -115,7 +115,7 @@ function Base.isapprox(A::AbstractArray, B::AbstractArray, _app::UpToPhase)
     if n1 != n2
         return false
     end
-    app = Approx(;_app.kw...)
+    app = Approx(; _app.kw...)
     seen_non_zero_flag = false
     z = zero(eltype(A)) # TODO use promotion
     for (a, b) in zip(A, B)
